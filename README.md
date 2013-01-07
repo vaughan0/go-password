@@ -18,9 +18,9 @@ Generate a hash from a password:
 Check user input against the hash:
 
     if manager.Check("password", hash) {
-      fmt.Println("Wrong password")
-    } else {
       fmt.Println("Correct! (ps. you need a better password)")
+    } else {
+      fmt.Println("Wrong password")
     }
 
 Setting the hash algorithm
