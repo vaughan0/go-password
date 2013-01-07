@@ -1,6 +1,6 @@
 // Package password provides the facilities for working with cryptographically-secure password hashes.
 //
-// See the README for details: http://github.com/vaughan0/go-password
+// See the README for details: http://github.com/vaughan0/go-password#readme
 package password
 
 import (
