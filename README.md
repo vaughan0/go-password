@@ -26,11 +26,11 @@ go-password supports the md5, sha256, sha1 and bcrypt hashing algorithms, and
 by default uses bcrypt with a cost of 8. To customize the algorithm used, first create
 a new Manager and then change it's Default field:
 
-		manager := password.New()
-		manager.Default = "sha256"
+    manager := password.New()
+    manager.Default = "sha256"
 
-		hash := manager.Hash("password")
-		// hash => "sha256$blahblahblah"
+    hash := manager.Hash("password")
+    // hash => "sha256$blahblahblah"
 
 If you want to change the cost of the bcrypt algorithm on a per-Manager basis,
 register a new Bcrypt instance with the manager:
