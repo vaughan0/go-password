@@ -40,21 +40,21 @@ type Codec interface {
 }
 
 // Map of known algorithms by name
-var Algorithms = make(map[string]Algorithm)
+var algorithms = make(map[string]Algorithm)
 
 // Default algorithm to use when hashing passwords
-var DefaultUse string
+var defaultUse string
 
 var defaultManager *Manager
 
 // Globally registers a hash algorithm so that it can be used to generate and check hashes.
 func Register(name string, algo Algorithm) {
-	Algorithms[name] = algo
+	algorithms[name] = algo
 }
 
 // Calls Register with a wrapped version of the hash. See HashWrapper.
 func RegisterHash(name string, h hash.Hash) {
-	Algorithms[name] = &HashWrapper{h, 3}
+	algorithms[name] = &HashWrapper{h, 3}
 }
 
 func init() {
@@ -62,7 +62,7 @@ func init() {
 	RegisterHash("sha256", sha256.New())
 	RegisterHash("sha1", sha1.New())
 	Register("bcrypt", Bcrypt{8})
-	DefaultUse = "bcrypt"
+	defaultUse = "bcrypt"
 	defaultManager = New()
 }
 
@@ -82,7 +82,7 @@ type Manager struct {
 // string/data conversions.
 func New() *Manager {
 	return &Manager{
-		Use:        DefaultUse,
+		Use:        defaultUse,
 		Codec:      Base64Codec{base64.StdEncoding},
 		Algorithms: make(map[string]Algorithm),
 	}
@@ -92,7 +92,7 @@ func (m *Manager) getAlgorithm(name string) Algorithm {
 	if algo := m.Algorithms[name]; algo != nil {
 		return algo
 	}
-	if algo := Algorithms[name]; algo != nil {
+	if algo := algorithms[name]; algo != nil {
 		return algo
 	}
 	panic(ErrUnknownAlgorithm(name))
