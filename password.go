@@ -1,3 +1,4 @@
+// Package password provides the facilities for working with cryptographically-secure password hashes
 package password
 
 import (
@@ -20,11 +21,17 @@ func (e ErrUnknownAlgorithm) Error() string {
 	return "unknown hash algorithm: " + string(e)
 }
 
+// The Algorithm interface represents cryptographic hash functions for hashing passwords
 type Algorithm interface {
+	// Returns the result of hashing the given password
 	Hash(password []byte) []byte
+	// Returns true if the given password matches the hash. The hash will have
+	// been previously obtained by a call to this Algorithm's Hash() function.
 	Check(password, hashed []byte) bool
 }
 
+// Implementations of the Codec interface are responsible for converting binary
+// data to and from textual strings.
 type Codec interface {
 	Encode([]byte) string
 	Decode(string) []byte
@@ -38,10 +45,12 @@ var Default string
 
 var defaultManager *Manager
 
+// Globally registers a hash algorithm so that it can be used to generate and check hashes.
 func Register(name string, algo Algorithm) {
 	Algorithms[name] = algo
 }
 
+// Calls Register with a wrapped version of the hash. See HashWrapper.
 func RegisterHash(name string, h hash.Hash) {
 	Algorithms[name] = &HashWrapper{h, 3}
 }
@@ -55,12 +64,20 @@ func init() {
 	defaultManager = New()
 }
 
+// A Manager provides the basic functions for working with password hashes, and has configurable fields.
 type Manager struct {
-	Default    string
+	// The name of the algorithm to use when hashing passwords with Hash().
+	Default string
+	// A map of manager-specific algorithms, which is by default empty.
+	// Algorithms in this map take preference over the global map of known algorithms.
 	Algorithms map[string]Algorithm
-	Codec      Codec
+	// Codec is used for encoding and decoding hash strings.
+	Codec Codec
 }
 
+// Returns a new Manager with the default settings. The Manager will use bcrypt
+// for hashing, and the Base64Codec (with the standard base64 encoding) for
+// string/data conversions.
 func New() *Manager {
 	return &Manager{
 		Default:    Default,
@@ -79,19 +96,25 @@ func (m *Manager) getAlgorithm(name string) Algorithm {
 	panic(ErrUnknownAlgorithm(name))
 }
 
+// Registers an algorithm with the Manager's local algorithm map.
 func (m *Manager) Register(name string, algo Algorithm) {
 	m.Algorithms[name] = algo
 }
+
+// See password.RegisterHash
 func (m *Manager) RegisterHash(name string, h hash.Hash) {
 	m.Algorithms[name] = &HashWrapper{h, 3}
 }
 
+// Hashes the given password with the default hashing algorithm and returns the resulting hash string.
 func (m *Manager) Hash(password string) string {
 	algo := m.getAlgorithm(m.Default)
 	hash := algo.Hash([]byte(password))
 	return pack(m.Default, m.Codec.Encode(hash))
 }
 
+// Returns true if the given password matches the given hash string.
+// The hash string must be a result from a previous call to Hash().
 func (m *Manager) Check(password, hashed string) bool {
 	algoName, hashed := unpack(hashed)
 	algo := m.getAlgorithm(algoName)
@@ -109,17 +132,19 @@ func unpack(packed string) (algo, hash string) {
 	return fields[0], fields[1]
 }
 
+// Hashes the password using the default Manager.
 func Hash(password string) string {
 	return defaultManager.Hash(password)
 }
 
+// Checks a password and hash using the default Manager.
 func Check(password, hashed string) bool {
 	return defaultManager.Check(password, hashed)
 }
 
 /* Algorithm implementations */
 
-// HashWrapper implements Algorithm by wrapping a hash.Hash instance, as well as providing random salt generation
+// HashWrapper implements Algorithm by wrapping a hash.Hash instance, as well as providing random salt generation.
 type HashWrapper struct {
 	Hasher hash.Hash
 	// Size, in bytes, of the randomly-generated salts
@@ -148,7 +173,7 @@ func (h *HashWrapper) Check(password, hashed []byte) bool {
 	return subtle.ConstantTimeCompare(testHash, answer) == 1
 }
 
-// Bcrypt uses the bcrypt algorithm with a fixed cost
+// Bcrypt uses the bcrypt algorithm with a fixed cost.
 type Bcrypt struct {
 	Cost int
 }
@@ -167,6 +192,7 @@ func (b Bcrypt) Check(password, hashed []byte) bool {
 
 /* Codec implementations */
 
+// HexCodec uses hexadecimal strings for encoding and decoding.
 type HexCodec struct{}
 
 func (h HexCodec) Encode(data []byte) string {
@@ -180,6 +206,7 @@ func (h HexCodec) Decode(str string) []byte {
 	return result
 }
 
+// Base64Codec uses base64 with a customizable Encoding for string/data conversions.
 type Base64Codec struct {
 	Encoding *base64.Encoding
 }
