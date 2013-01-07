@@ -81,6 +81,9 @@ func pack(algo, hash string) string {
 }
 func unpack(packed string) (algo, hash string) {
 	fields := strings.SplitN(packed, "$", 2)
+	if len(fields) != 2 {
+		panic("invalid password hash")
+	}
 	return fields[0], fields[1]
 }
 
