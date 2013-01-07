@@ -6,18 +6,14 @@ Simple Go package for working with cryptographically-secure password hashes.
 Usage
 -----
 
-Create a new password manager:
-
-    import "github.com/vaughan0/go-password"
-    manager := password.New()
-
 Generate a hash from a password:
 
-    hash := manager.Hash("superdupersecret")
+    import "github.com/vaughan0/go-password"
+    hash := password.Hash("superdupersecret")
 
 Check user input against the hash:
 
-    if manager.Check("password", hash) {
+    if password.Check("password", hash) {
       fmt.Println("Correct! (ps. you need a better password)")
     } else {
       fmt.Println("Wrong password")
@@ -27,13 +23,17 @@ Setting the hash algorithm
 --------------------------
 
 go-password supports the md5, sha256, sha1 and bcrypt hashing algorithms, and
-by default uses bcrypt with a cost of 8.  To set which one the Manager should
-use when hashing, simply change it's Default field:
+by default uses bcrypt with a cost of 8. To customize the algorithm used, first create
+a new Manager and then change it's Default field:
 
+		manager := password.New()
     manager.Default = "sha256"
 
+		hash := manager.Hash("password")
+		// hash => "sha256$blahblahblah"
+
 If you want to change the cost of the bcrypt algorithm on a per-Manager basis,
-register a new instance on the manager:
+register a new Bcrypt instance with the manager:
 
     manager.Register("bcrypt", password.Bcrypt{customCost})
 

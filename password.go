@@ -36,6 +36,8 @@ var Algorithms = make(map[string]Algorithm)
 // Default algorithm to use when hashing passwords
 var Default string
 
+var defaultManager *Manager
+
 func Register(name string, algo Algorithm) {
 	Algorithms[name] = algo
 }
@@ -50,6 +52,7 @@ func init() {
 	RegisterHash("sha1", sha1.New())
 	Register("bcrypt", Bcrypt{8})
 	Default = "bcrypt"
+	defaultManager = New()
 }
 
 type Manager struct {
@@ -104,6 +107,14 @@ func unpack(packed string) (algo, hash string) {
 		panic("invalid password hash")
 	}
 	return fields[0], fields[1]
+}
+
+func Hash(password string) string {
+	return defaultManager.Hash(password)
+}
+
+func Check(password, hashed string) bool {
+	return defaultManager.Check(password, hashed)
 }
 
 /* Algorithm implementations */
