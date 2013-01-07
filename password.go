@@ -92,6 +92,7 @@ func unpack(packed string) (algo, hash string) {
 // HashWrapper implements Algorithm by wrapping a hash.Hash instance, as well as providing random salt generation
 type HashWrapper struct {
 	Hasher hash.Hash
+	// Size, in bytes, of the randomly-generated salts
 	Salt   int
 }
 
@@ -117,6 +118,7 @@ func (h *HashWrapper) Check(password, hashed []byte) bool {
 	return subtle.ConstantTimeCompare(testHash, answer) == 1
 }
 
+// Bcrypt uses the bcrypt algorithm with a fixed cost
 type Bcrypt struct {
 	Cost int
 }
