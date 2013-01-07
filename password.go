@@ -14,8 +14,8 @@ import (
 	"code.google.com/p/go.crypto/bcrypt"
 )
 
-type ErrUnknownHash string
-func (e ErrUnknownHash) Error() string {
+type ErrUnknownAlgorithm string
+func (e ErrUnknownAlgorithm) Error() string {
 	return "unknown hash algorithm: "+string(e)
 }
 
@@ -72,7 +72,7 @@ func (m *Manager) getAlgorithm(name string) Algorithm {
 	if algo := Algorithms[name]; algo != nil {
 		return algo
 	}
-	panic(ErrUnknownHash(name))
+	panic(ErrUnknownAlgorithm(name))
 }
 
 func (m *Manager) Register(name string, algo Algorithm) {
