@@ -8,20 +8,26 @@ Usage
 
 Create a new password manager:
 
+    ```go
     import "github.com/vaughan0/go-password"
     manager := password.New()
+    ```
 
 Generate a hash from a password:
 
+    ```go
     hash := manager.Hash("superdupersecret")
+    ```
 
 Check user input against the hash:
 
+    ```go
     if manager.Check("password", hash) {
       fmt.Println("Wrong password")
     } else {
       fmt.Println("Correct! (ps. you need a better password)")
     }
+    ```
 
 Setting the hash algorithm
 --------------------------
@@ -30,7 +36,9 @@ go-password supports the md5, sha256, sha1 and bcrypt hashing algorithms, and
 by default uses bcrypt with a cost of 8.  To set which one the Manager should
 use when hashing, simply change it's Default field:
 
+    ```go
     manager.Default = "sha256"
+    ```
 
 Custom hash algorithms
 ----------------------
@@ -38,22 +46,28 @@ Custom hash algorithms
 If you want to use a custom hash algorithm with go-password, you need to
 implement the Algorithm interface:
 
+    ```go
     type Algorithm interface {
       Hash(password []byte) []byte
       Check(password, hashed []byte) bool
     }
+    ```
 
 Then register your algorithm:
 
+    ```go
     var algorithm password.Algorithm = new(MyAlgorithm)
     password.Register("myhash", algorithm)
+    ```
 
 Alternatively, if you just want to register a hash that already provides a
 hash.Hash implementation (from the standard hash package), you may use the
 RegisterHash function. This also adds random salts to your hashes:
 
+    ```go
     var algorithm hash.Hash = myhashpackage.New()
     password.RegisterHash("myhash", algorithm)
+    ```
 
 Hash strings explained
 ----------------------
