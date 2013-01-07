@@ -27,7 +27,7 @@ by default uses bcrypt with a cost of 8. To customize the algorithm used, first 
 a new Manager and then change it's Default field:
 
 		manager := password.New()
-    manager.Default = "sha256"
+		manager.Default = "sha256"
 
 		hash := manager.Hash("password")
 		// hash => "sha256$blahblahblah"
