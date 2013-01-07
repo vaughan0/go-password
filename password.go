@@ -41,7 +41,7 @@ type Codec interface {
 var Algorithms = make(map[string]Algorithm)
 
 // Default algorithm to use when hashing passwords
-var Default string
+var DefaultUse string
 
 var defaultManager *Manager
 
@@ -60,14 +60,14 @@ func init() {
 	RegisterHash("sha256", sha256.New())
 	RegisterHash("sha1", sha1.New())
 	Register("bcrypt", Bcrypt{8})
-	Default = "bcrypt"
+	DefaultUse = "bcrypt"
 	defaultManager = New()
 }
 
 // A Manager provides the basic functions for working with password hashes, and has configurable fields.
 type Manager struct {
 	// The name of the algorithm to use when hashing passwords with Hash().
-	Default string
+	Use string
 	// A map of manager-specific algorithms, which is by default empty.
 	// Algorithms in this map take preference over the global map of known algorithms.
 	Algorithms map[string]Algorithm
@@ -80,7 +80,7 @@ type Manager struct {
 // string/data conversions.
 func New() *Manager {
 	return &Manager{
-		Default:    Default,
+		Use:        DefaultUse,
 		Codec:      Base64Codec{base64.StdEncoding},
 		Algorithms: make(map[string]Algorithm),
 	}
@@ -108,9 +108,9 @@ func (m *Manager) RegisterHash(name string, h hash.Hash) {
 
 // Hashes the given password with the default hashing algorithm and returns the resulting hash string.
 func (m *Manager) Hash(password string) string {
-	algo := m.getAlgorithm(m.Default)
+	algo := m.getAlgorithm(m.Use)
 	hash := algo.Hash([]byte(password))
-	return pack(m.Default, m.Codec.Encode(hash))
+	return pack(m.Use, m.Codec.Encode(hash))
 }
 
 // Returns true if the given password matches the given hash string.
