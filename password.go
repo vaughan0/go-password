@@ -14,6 +14,11 @@ import (
 	"code.google.com/p/go.crypto/bcrypt"
 )
 
+type ErrUnknownHash string
+func (e ErrUnknownHash) Error() string {
+	return "unknown hash algorithm: "+string(e)
+}
+
 type Algorithm interface {
 	Hash(password []byte) []byte
 	Check(password, hashed []byte) bool
@@ -48,6 +53,7 @@ func init() {
 
 type Manager struct {
 	Default string
+	Algorithms map[string]Algorithm
 	Codec   Codec
 }
 
@@ -55,24 +61,36 @@ func New() *Manager {
 	return &Manager{
 		Default: Default,
 		Codec:   Base64Codec{base64.StdEncoding},
+		Algorithms: make(map[string]Algorithm),
 	}
 }
 
-func (m *Manager) Hash(password string) string {
-	algo := Algorithms[m.Default]
-	if algo == nil {
-		panic("unknown default hash algorithm: " + m.Default)
+func (m *Manager) getAlgorithm(name string) Algorithm {
+	if algo := m.Algorithms[name]; algo != nil {
+		return algo
 	}
+	if algo := Algorithms[name]; algo != nil {
+		return algo
+	}
+	panic(ErrUnknownHash(name))
+}
+
+func (m *Manager) Register(name string, algo Algorithm) {
+	m.Algorithms[name] = algo
+}
+func (m *Manager) RegisterHash(name string, h hash.Hash) {
+	m.Algorithms[name] = &HashWrapper{h, 3}
+}
+
+func (m *Manager) Hash(password string) string {
+	algo := m.getAlgorithm(m.Default)
 	hash := algo.Hash([]byte(password))
 	return pack(m.Default, m.Codec.Encode(hash))
 }
 
 func (m *Manager) Check(password, hashed string) bool {
 	algoName, hashed := unpack(hashed)
-	algo := Algorithms[algoName]
-	if algo == nil {
-		panic("unknown hash algorithm: " + algoName)
-	}
+	algo := m.getAlgorithm(algoName)
 	return algo.Check([]byte(password), m.Codec.Decode(hashed))
 }
 
