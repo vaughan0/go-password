@@ -1,4 +1,4 @@
-// Package password provides the facilities for working with cryptographically-secure password hashes
+// Package password provides the facilities for working with cryptographically-secure password hashes.
 package password
 
 import (
