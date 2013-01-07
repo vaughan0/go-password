@@ -32,6 +32,11 @@ use when hashing, simply change it's Default field:
 
     manager.Default = "sha256"
 
+If you want to change the cost of the bcrypt algorithm on a per-Manager basis,
+register a new instance on the manager:
+
+    manager.Register("bcrypt", password.Bcrypt{customCost})
+
 Custom hash algorithms
 ----------------------
 
