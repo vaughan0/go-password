@@ -15,8 +15,9 @@ import (
 )
 
 type ErrUnknownAlgorithm string
+
 func (e ErrUnknownAlgorithm) Error() string {
-	return "unknown hash algorithm: "+string(e)
+	return "unknown hash algorithm: " + string(e)
 }
 
 type Algorithm interface {
@@ -52,15 +53,15 @@ func init() {
 }
 
 type Manager struct {
-	Default string
+	Default    string
 	Algorithms map[string]Algorithm
-	Codec   Codec
+	Codec      Codec
 }
 
 func New() *Manager {
 	return &Manager{
-		Default: Default,
-		Codec:   Base64Codec{base64.StdEncoding},
+		Default:    Default,
+		Codec:      Base64Codec{base64.StdEncoding},
 		Algorithms: make(map[string]Algorithm),
 	}
 }
@@ -111,7 +112,7 @@ func unpack(packed string) (algo, hash string) {
 type HashWrapper struct {
 	Hasher hash.Hash
 	// Size, in bytes, of the randomly-generated salts
-	Salt   int
+	Salt int
 }
 
 func (h *HashWrapper) Hash(password []byte) []byte {
