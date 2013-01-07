@@ -35,6 +35,7 @@ a new Manager and then change it's Default field:
 If you want to change the cost of the bcrypt algorithm on a per-Manager basis,
 register a new Bcrypt instance with the manager:
 
+    customCost := 10
     manager.Register("bcrypt", password.Bcrypt{customCost})
 
 Custom hash algorithms
