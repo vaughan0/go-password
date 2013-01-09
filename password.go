@@ -155,9 +155,8 @@ type HashWrapper struct {
 
 func (h *HashWrapper) Hash(password []byte) []byte {
 	salt := make([]byte, h.Salt)
-	n, err := rand.Read(salt)
-	if n < h.Salt || err != nil {
-		panic("failed to generate random salt")
+	if _, err := rand.Read(salt); err != nil {
+		panic("failed to generate random salt: " + err.Error())
 	}
 	h.Hasher.Reset()
 	h.Hasher.Write(salt)
