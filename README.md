@@ -3,6 +3,8 @@ go-password
 
 Simple Go package for working with cryptographically-secure password hashes.
 
+View the docs [here](http://godoc.org/github.com/vaughan0/go-password).
+
 Usage
 -----
 
